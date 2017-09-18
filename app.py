@@ -1,6 +1,8 @@
 import tkinter as tk
 from tkinter import ttk
-import datetime
+from cycles import Cycle
+from datetime import timedelta
+from itertools import cycle
 
 
 class Workodoro(tk.Tk):
@@ -14,51 +16,51 @@ class Workodoro(tk.Tk):
         self.attributes("-topmost", True)
         self.lift()
         self.progressive = Progressive()
-        self.cycle = 0
-        self.cycles = [self.work_cycle, self.rest_cycle]
-        self.start = datetime.datetime.now()
-        self.target = datetime.datetime.now()
-        self.deltaTime = lambda: self.target - datetime.datetime.now()
-        self.percentTime = lambda: 100 * (datetime.datetime.now() - self.start)/(self.target - self.start)
+        work_cycle = Cycle(25, name="Work", color="red")
+        break_cycle = Cycle(5, name="Break", color="lightgreen")
+        rest_cycle = Cycle(15, name="Rest", color="green")
+        self.cycles = cycle([work_cycle, break_cycle, work_cycle, break_cycle,
+                             work_cycle, break_cycle, work_cycle, rest_cycle])
+        self.cycle = None
         self.switch_cycle()
-
-    def work_cycle(self):
-        self.start = datetime.datetime.now()
-        self.target = self.start + datetime.timedelta(minutes=25)
-        self.progressive.mode["text"] = "Work"
-        self.progressive.set_bar_color("red")
-        self.after(100, self.progress_check)
-
-    def rest_cycle(self):
-        self.start = datetime.datetime.now()
-        self.target = self.start + datetime.timedelta(minutes=5)
-        self.progressive.mode["text"] = "Rest"
-        self.progressive.set_bar_color("green")
-        self.after(100, self.progress_check)
+        self.fast_forwarding = False
+        self.bind("<Button-1>", self.fast_forward)
 
     def switch_cycle(self):
         self.progressive.progress.stop()
-        self.cycles[self.cycle % len(self.cycles)]()
-        self.cycle += 1
+        self.cycle = next(self.cycles)
+        self.cycle.start_cycle()
         self.bell()
+        self.progressive.load_cycle(self.cycle)
+        self.after(100, self.progress_check)
+        self.fast_forwarding = False
 
     def progress_check(self):
         pb = self.progressive.progress
         tm = self.progressive.time
-        d = self.deltaTime().seconds
+        d = self.cycle.delta().seconds
         tm["text"] = "{}:{}".format(int(d / 60), str(d % 60).zfill(2))
-        pb["value"] = self.percentTime()
+        pb["value"] = self.cycle.percent()
         if pb["value"] >= 99:
             self.switch_cycle()
+        elif self.fast_forwarding:
+            self.after(1, self.progress_check)
         else:
             self.after(100, self.progress_check)
+
+    def fast_forward(self, event=None):
+        if event is not None:
+            self.fast_forwarding = True
+        if self.fast_forwarding:
+            self.cycle.start -= timedelta(seconds=1)
+            self.after(1, self.fast_forward)
 
 
 class Progressive(tk.Frame):
 
     def __init__(self):
         super().__init__()
-        self.progress = ttk.Progressbar(self, length=100)
+        self.progress = ttk.Progressbar(self, length=70)
         self.mode = tk.Label(self, text="Mode")
         self.time = tk.Label(self, text="Time")
         self.progress.pack()
@@ -67,10 +69,11 @@ class Progressive(tk.Frame):
         self.time.pack(side=tk.RIGHT)
         self.pack(padx=5, pady=5)
 
-    def set_bar_color(self, color):
+    def load_cycle(self, cycle):
+        self.mode["text"] = cycle.name
         s = ttk.Style()
         s.theme_use("default")
-        s.configure("colored.Horizontal.TProgressbar", background=color)
+        s.configure("colored.Horizontal.TProgressbar", background=cycle.color)
         self.progress["style"] = "colored.Horizontal.TProgressbar"
 
 
