@@ -45,7 +45,7 @@ class Workodoro(tk.Tk):
         pb = self.progressive.progress
         tm = self.progressive.time
         d = self.deltaTime().seconds
-        tm["text"] = "{}:{}".format(int(d / 60), d % 60)
+        tm["text"] = "{}:{}".format(int(d / 60), str(d % 60).zfill(2))
         pb["value"] = self.percentTime()
         if pb["value"] >= 99:
             self.switch_cycle()
