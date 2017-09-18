@@ -1,6 +1,5 @@
 import tkinter as tk
 from tkinter import ttk
-from winsound import PlaySound, SND_ALIAS
 import datetime
 
 
@@ -27,19 +26,21 @@ class Workodoro(tk.Tk):
         self.start = datetime.datetime.now()
         self.target = self.start + datetime.timedelta(minutes=25)
         self.progressive.mode["text"] = "Work"
+        self.progressive.set_bar_color("red")
         self.after(100, self.progress_check)
 
     def rest_cycle(self):
         self.start = datetime.datetime.now()
         self.target = self.start + datetime.timedelta(minutes=5)
         self.progressive.mode["text"] = "Rest"
+        self.progressive.set_bar_color("green")
         self.after(100, self.progress_check)
 
     def switch_cycle(self):
-        PlaySound("SystemAsterisk", SND_ALIAS)
         self.progressive.progress.stop()
         self.cycles[self.cycle % len(self.cycles)]()
         self.cycle += 1
+        self.bell()
 
     def progress_check(self):
         pb = self.progressive.progress
@@ -65,6 +66,12 @@ class Progressive(tk.Frame):
         self.mode.pack(side=tk.LEFT)
         self.time.pack(side=tk.RIGHT)
         self.pack(padx=5, pady=5)
+
+    def set_bar_color(self, color):
+        s = ttk.Style()
+        s.theme_use("alt")
+        s.configure("colored.Horizontal.TProgressbar", background=color)
+        self.progress["style"] = "colored.Horizontal.TProgressbar"
 
 
 workodoro = Workodoro()
