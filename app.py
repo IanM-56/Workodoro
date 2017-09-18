@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
-from winsound import PlaySound, SND_FILENAME, SND_ASYNC
+from winsound import PlaySound, SND_ALIAS
 import datetime
 
 
@@ -36,7 +36,7 @@ class Workodoro(tk.Tk):
         self.after(100, self.progress_check)
 
     def switch_cycle(self):
-        # PlaySound("sounds/ding.wav", SND_ASYNC)
+        PlaySound("SystemAsterisk", SND_ALIAS)
         self.progressive.progress.stop()
         self.cycles[self.cycle % len(self.cycles)]()
         self.cycle += 1
@@ -60,10 +60,10 @@ class Progressive(tk.Frame):
         self.progress = ttk.Progressbar(self, length=100)
         self.mode = tk.Label(self, text="Mode")
         self.time = tk.Label(self, text="Time")
-        self.progress.grid()
+        self.progress.pack()
         self.progress.stop()
-        self.mode.grid()
-        self.time.grid()
+        self.mode.pack(side=tk.LEFT)
+        self.time.pack(side=tk.RIGHT)
         self.pack(padx=5, pady=5)
 
 
