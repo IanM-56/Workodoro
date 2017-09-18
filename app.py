@@ -19,7 +19,7 @@ class Workodoro(tk.Tk):
         self.start = datetime.datetime.now()
         self.target = datetime.datetime.now()
         self.deltaTime = lambda: self.target - datetime.datetime.now()
-        self.percentTime = lambda: int(100 * (datetime.datetime.now() - self.start)/(self.target - self.start))
+        self.percentTime = lambda: 100 * (datetime.datetime.now() - self.start)/(self.target - self.start)
         self.switch_cycle()
 
     def work_cycle(self):
@@ -69,7 +69,7 @@ class Progressive(tk.Frame):
 
     def set_bar_color(self, color):
         s = ttk.Style()
-        s.theme_use("alt")
+        s.theme_use("default")
         s.configure("colored.Horizontal.TProgressbar", background=color)
         self.progress["style"] = "colored.Horizontal.TProgressbar"
 
