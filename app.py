@@ -38,7 +38,6 @@ class Workodoro(tk.Tk):
     def switch_cycle(self):
         # PlaySound("sounds/ding.wav", SND_ASYNC)
         self.progressive.progress.stop()
-        print(self.cycle % len(self.cycles))
         self.cycles[self.cycle % len(self.cycles)]()
         self.cycle += 1
 
