@@ -1,16 +1,24 @@
-import datetime
+from _datetime import datetime as dt
+from datetime import timedelta as td
 
 
 class Cycle:
+    __slots__ = ["duration", "start", "name", "color"]
 
-    def __init__(self, minutes, seconds=0, *, name="Cycle", color="blue"):
-        self.duration = datetime.timedelta(minutes=minutes, seconds=seconds)
-        self.start = datetime.datetime.now()
-        self.end = lambda: self.start + self.duration
-        self.delta = lambda: self.end() - datetime.datetime.now()
-        self.percent = lambda: 100 * (datetime.datetime.now() - self.start) / (self.end() - self.start)
-        self.name = name
-        self.color = color
+    def __init__(self, minutes: int, seconds: int = 0, *, name: str = "Cycle", color: str = "blue") -> None:
+        self.duration = td(minutes=minutes, seconds=seconds)
+        self.start: dt = dt.now()
+        self.name: str = name
+        self.color: str = color
 
-    def start_cycle(self):
-        self.start = datetime.datetime.now()
+    def end(self) -> dt:
+        return self.start + self.duration
+
+    def delta(self) -> td:
+        return self.end() - dt.now()
+
+    def percent(self) -> float:
+        return 100 * (dt.now() - self.start) / (self.end() - self.start)
+
+    def start_cycle(self) -> None:
+        self.start = dt.now()
